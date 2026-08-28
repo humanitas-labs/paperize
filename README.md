@@ -10,16 +10,23 @@ annotations remain intact.
 ## Install
 
 ```console
-uv tool install paperize-pdf
+uv tool install git+https://github.com/humanitas-labs/paperize.git
+paperize --version
 ```
 
-The PyPI distribution is named `paperize-pdf` because the shorter distribution
-name is occupied by an unrelated project. The installed command remains
-`paperize`.
+The distribution is named `paperize-pdf`; the installed command is `paperize`.
+For a local clone, run `uv tool install .` from the repository root.
+
+`uv` installs commands into its user tool directory. If `paperize` is not found
+after installation, add that directory to your shell path and open a new shell:
+
+```console
+uv tool update-shell
+```
 
 ## Usage
 
-Proposed command:
+Basic command:
 
 ```console
 paperize input.pdf
@@ -38,6 +45,18 @@ The default `parchment` preset uses a soft elliptical falloff from `#FAEDDB` at
 the broad page center to `#FFE6C3` near the perimeter. The transition begins
 only in the outer portion of the page and varies subtly, but deterministically,
 from page to page. Paperize leaves the original text and ink colors alone.
+
+Preset defaults at full strength on a white source page:
+
+| Preset | Broad center | Page edge | Texture | Character |
+|---|---|---|---:|---|
+| `cream` | `#FAE8B8` | `#C79E66` | `0.03` | Golden cream |
+| `parchment` | `#FAEDDB` | `#FFE6C3` | `0.08` | Light, warm paper |
+| `sepia` | `#E0AD66` | `#9E6633` | `0.12` | Strong aged-paper effect |
+
+All presets use the variable edge vignette by default. `--strength` scales the
+whole treatment, while `--texture` and `--vignette` override their individual
+preset defaults with values from `0` through `1`.
 
 The vignette strength and paper texture are independently tunable:
 
