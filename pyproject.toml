@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "paperize-pdf"
-version = "0.2.0"
+version = "0.3.0"
 description = "Turn bright white PDF pages into warm, comfortable paper."
 readme = "README.md"
 requires-python = ">=3.12"

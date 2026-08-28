@@ -2,13 +2,14 @@
 
 from pathlib import Path
 
+import pikepdf
 import pymupdf
 import pytest
 
 from paperize.config import TransformRequest, UnitAmount
 from paperize.overlay import (
-    VIGNETTE_TRANSITION_CENTER,
-    VIGNETTE_TRANSITION_JITTER,
+    VIGNETTE_RADIUS,
+    VIGNETTE_WIDTH_JITTER_RATIO,
     _vignette_transition_start,
 )
 from paperize.pdf import paperize
@@ -95,14 +96,70 @@ def test_black_marks_keep_their_original_color(source_pdf: Path) -> None:
 def test_vignette_size_varies_deterministically_by_page() -> None:
     """Edge falloff varies naturally by page but remains reproducible."""
     preset = get_preset("parchment")
-    first = _vignette_transition_start(preset, 0)
-    repeated = _vignette_transition_start(preset, 0)
-    second = _vignette_transition_start(preset, 1)
+    width = UnitAmount(0.32)
+    first = _vignette_transition_start(preset, 0, width)
+    repeated = _vignette_transition_start(preset, 0, width)
+    second = _vignette_transition_start(preset, 1, width)
+    rendered_width = 1.0 - first
 
     assert first == repeated
     assert first != second
-    assert first >= VIGNETTE_TRANSITION_CENTER - VIGNETTE_TRANSITION_JITTER
-    assert first <= VIGNETTE_TRANSITION_CENTER + VIGNETTE_TRANSITION_JITTER
+    assert rendered_width >= width.value * (1.0 - VIGNETTE_WIDTH_JITTER_RATIO)
+    assert rendered_width <= width.value * (1.0 + VIGNETTE_WIDTH_JITTER_RATIO)
+
+
+def test_narrower_vignette_width_moves_transition_toward_edge() -> None:
+    """A smaller width leaves more of the page at the flat center color."""
+    preset = get_preset("parchment")
+    narrow = _vignette_transition_start(preset, 0, UnitAmount(0.12))
+    default = _vignette_transition_start(preset, 0, UnitAmount(0.32))
+
+    assert narrow > default
+    assert narrow >= 0.85
+
+
+def test_zero_vignette_width_uses_uniform_center_color(source_pdf: Path) -> None:
+    """Width zero removes the edge transition without changing paper color."""
+    output = source_pdf.with_name("zero-width.pdf")
+    paperize(
+        TransformRequest(
+            source=source_pdf,
+            output=output,
+            preset_name="parchment",
+            strength=UnitAmount(1.0),
+            texture=UnitAmount(0.0),
+            vignette=UnitAmount(1.0),
+            vignette_width=UnitAmount(0.0),
+        )
+    )
+
+    assert _near(_pixel(output, x=306, y=396), PARCHMENT_CENTER)
+    assert _near(_pixel(output, x=5, y=396), PARCHMENT_CENTER)
+
+
+def test_narrow_vignette_uses_concentric_radial_geometry(source_pdf: Path) -> None:
+    """Narrow widths avoid stitched functions that some PDF viewers clip."""
+    output = source_pdf.with_name("radial-geometry.pdf")
+    paperize(
+        TransformRequest(
+            source=source_pdf,
+            output=output,
+            preset_name="parchment",
+            strength=UnitAmount(1.0),
+            texture=UnitAmount(0.0),
+            vignette_width=UnitAmount(0.12),
+        )
+    )
+
+    with pikepdf.Pdf.open(output) as document:
+        shadings = document.pages[0].Resources.Shading
+        shading = next(value for _name, value in shadings.items())
+        coordinates = [float(value) for value in shading.Coords]
+
+        assert int(shading.ShadingType) == 3
+        assert int(shading.Function.FunctionType) == 2
+        assert coordinates[2] > 0.4
+        assert coordinates[5] == VIGNETTE_RADIUS
 
 
 def _pixel(path: Path, *, x: int, y: int) -> tuple[int, int, int]:

@@ -2,6 +2,15 @@
 
 All notable changes to Paperize will be documented in this file.
 
+## 0.3.0 - 2026.08.28
+
+- Add `--vignette-width` to control how far the edge transition extends toward
+  the page center.
+- Scale deterministic page-to-page variation to the selected width.
+- Preserve the existing appearance with a default width of `0.32`.
+- Use concentric radial geometry for consistent narrow-vignette rendering
+  across PDF viewers.
+
 ## 0.2.0 - 2026.08.28
 
 - Add an elliptical paper shading from `#FAEDDB` at the center to `#FFE6C3`

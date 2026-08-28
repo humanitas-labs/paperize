@@ -50,6 +50,12 @@ from paperize.presets import PRESETS
     default=None,
     help="Override the preset's edge-vignette strength.",
 )
+@click.option(
+    "--vignette-width",
+    type=click.FloatRange(0.0, 1.0),
+    default=None,
+    help="Override how far the edge vignette extends toward the page center.",
+)
 @click.option("--force", is_flag=True, help="Replace an existing output file.")
 def cli(
     source: Path,
@@ -58,6 +64,7 @@ def cli(
     strength: float,
     texture: float | None,
     vignette: float | None,
+    vignette_width: float | None,
     *,
     force: bool,
 ) -> None:
@@ -69,6 +76,7 @@ def cli(
         strength=UnitAmount(strength),
         texture=None if texture is None else UnitAmount(texture),
         vignette=None if vignette is None else UnitAmount(vignette),
+        vignette_width=(None if vignette_width is None else UnitAmount(vignette_width)),
         force=force,
     )
     try:

@@ -32,6 +32,7 @@ class PaperPreset:
     texture_seed: int
     vignette_edge: RgbColor
     default_vignette: UnitAmount
+    default_vignette_width: UnitAmount
 
 
 PRESETS: dict[str, PaperPreset] = {
@@ -43,6 +44,7 @@ PRESETS: dict[str, PaperPreset] = {
         texture_seed=1103,
         vignette_edge=RgbColor(0.78, 0.62, 0.40),
         default_vignette=UnitAmount(1.0),
+        default_vignette_width=UnitAmount(0.32),
     ),
     "parchment": PaperPreset(
         name="parchment",
@@ -52,6 +54,7 @@ PRESETS: dict[str, PaperPreset] = {
         texture_seed=2207,
         vignette_edge=RgbColor(1.0, 0.901961, 0.764706),
         default_vignette=UnitAmount(1.0),
+        default_vignette_width=UnitAmount(0.32),
     ),
     "sepia": PaperPreset(
         name="sepia",
@@ -61,6 +64,7 @@ PRESETS: dict[str, PaperPreset] = {
         texture_seed=3313,
         vignette_edge=RgbColor(0.62, 0.40, 0.20),
         default_vignette=UnitAmount(1.0),
+        default_vignette_width=UnitAmount(0.32),
     ),
 }
 

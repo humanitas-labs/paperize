@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 
 PAGE_BOX_SIZE = 4
 VIGNETTE_RADIUS = 0.5
-VIGNETTE_TRANSITION_CENTER = 0.68
-VIGNETTE_TRANSITION_JITTER = 0.06
+VIGNETTE_WIDTH_JITTER_RATIO = 0.20
+MIN_TRANSITION_START = 0.0001
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,6 +28,7 @@ class OverlayStyle:
     strength: UnitAmount
     texture: UnitAmount
     vignette: UnitAmount
+    vignette_width: UnitAmount
 
 
 def apply_overlay(
@@ -78,7 +79,7 @@ def _paper_layer(
         blend_mode="/Multiply",
         prefix="PprPaperState",
     )
-    if style.vignette.value == 0:
+    if style.vignette.value == 0 or style.vignette_width.value == 0:
         return (
             f"{state} gs\n",
             f"{_rgb(style.preset.paper)} rg\n",
@@ -94,7 +95,11 @@ def _paper_layer(
         page,
         style.preset.paper,
         edge,
-        transition_start=_vignette_transition_start(style.preset, page_index),
+        transition_start=_vignette_transition_start(
+            style.preset,
+            page_index,
+            style.vignette_width,
+        ),
     )
     return _paper_shading_commands(
         cropbox,
@@ -151,31 +156,18 @@ def _add_paper_shading(
     *,
     transition_start: float,
 ) -> pikepdf.Name:
-    flat_center = pikepdf.Dictionary(
-        FunctionType=2,
-        Domain=pikepdf.Array([0.0, 1.0]),
-        C0=pikepdf.Array([center.red, center.green, center.blue]),
-        C1=pikepdf.Array([center.red, center.green, center.blue]),
-        N=1.0,
-    )
-    edge_falloff = pikepdf.Dictionary(
+    function = pikepdf.Dictionary(
         FunctionType=2,
         Domain=pikepdf.Array([0.0, 1.0]),
         C0=pikepdf.Array([center.red, center.green, center.blue]),
         C1=pikepdf.Array(edge),
         N=1.35,
     )
-    function = pikepdf.Dictionary(
-        FunctionType=3,
-        Domain=pikepdf.Array([0.0, 1.0]),
-        Functions=pikepdf.Array([flat_center, edge_falloff]),
-        Bounds=pikepdf.Array([transition_start]),
-        Encode=pikepdf.Array([0.0, 1.0, 0.0, 1.0]),
-    )
+    inner_radius = VIGNETTE_RADIUS * transition_start
     shading = pikepdf.Dictionary(
         ShadingType=3,
         ColorSpace=pikepdf.Name("/DeviceRGB"),
-        Coords=pikepdf.Array([0.5, 0.5, 0.0, 0.5, 0.5, VIGNETTE_RADIUS]),
+        Coords=pikepdf.Array([0.5, 0.5, inner_radius, 0.5, 0.5, VIGNETTE_RADIUS]),
         Function=function,
         Extend=pikepdf.Array([True, True]),
     )
@@ -187,15 +179,21 @@ def _add_paper_shading(
     )
 
 
-def _vignette_transition_start(preset: PaperPreset, page_index: int) -> float:
+def _vignette_transition_start(
+    preset: PaperPreset,
+    page_index: int,
+    width: UnitAmount,
+) -> float:
     """Return a stable per-page boundary for the edge vignette."""
     rng = random.Random(  # noqa: S311 - visual variation, not cryptography
         preset.texture_seed * 7 + page_index
     )
-    return VIGNETTE_TRANSITION_CENTER + rng.uniform(
-        -VIGNETTE_TRANSITION_JITTER,
-        VIGNETTE_TRANSITION_JITTER,
+    variation = width.value * VIGNETTE_WIDTH_JITTER_RATIO
+    varied_width = width.value + rng.uniform(
+        -variation,
+        variation,
     )
+    return max(MIN_TRANSITION_START, 1.0 - min(1.0, varied_width))
 
 
 def _paper_shading_commands(

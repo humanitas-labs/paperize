@@ -29,6 +29,7 @@ def paperize(request: TransformRequest) -> Path:
         strength=request.strength,
         texture=texture,
         vignette=request.vignette or preset.default_vignette,
+        vignette_width=(request.vignette_width or preset.default_vignette_width),
     )
     temporary = _temporary_output(request.output)
 
