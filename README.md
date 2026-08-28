@@ -34,6 +34,18 @@ paperize input.pdf --preset sepia --strength 0.6 --texture 0.15
 paperize input.pdf -o comfortable.pdf
 ```
 
+The default `parchment` preset uses a soft elliptical falloff from `#FAEDDB` at
+the broad page center to `#FFE6C3` near the perimeter. The transition begins
+only in the outer portion of the page and varies subtly, but deterministically,
+from page to page. Paperize leaves the original text and ink colors alone.
+
+The vignette strength and paper texture are independently tunable:
+
+```console
+paperize input.pdf --vignette 0.7
+paperize input.pdf --texture 0
+```
+
 Paperize refuses to overwrite files unless `--force` is present. Accessible
 encrypted PDFs are accepted and produce an ordinary unencrypted output. PDFs
 that require an unavailable password fail normally. Digitally signed PDFs are
@@ -53,5 +65,3 @@ uv build
 The approved implementation plan is in
 [`./.plan/implementation-plan.md`](.plan/implementation-plan.md). Architecture
 decisions are recorded in [`docs/architecture.md`](docs/architecture.md).
-The v0.1 verification record is in
-[`docs/verification.md`](docs/verification.md).

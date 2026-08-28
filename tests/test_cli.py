@@ -64,4 +64,21 @@ def test_cli_version() -> None:
     """The installed command exposes the package version."""
     result = CliRunner().invoke(cli, ["--version"])
     assert result.exit_code == 0
-    assert result.output.strip() == "paperize, version 0.1.0"
+    assert result.output.strip() == "paperize, version 0.2.0"
+
+
+def test_cli_accepts_vignette_override(source_pdf: Path) -> None:
+    """The edge vignette can be disabled independently."""
+    output = source_pdf.with_name("overrides.pdf")
+    result = CliRunner().invoke(
+        cli,
+        [
+            str(source_pdf),
+            "-o",
+            str(output),
+            "--vignette",
+            "0",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert output.exists()

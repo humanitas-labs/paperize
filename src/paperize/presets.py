@@ -27,36 +27,40 @@ class PaperPreset:
 
     name: str
     paper: RgbColor
-    base_opacity: UnitAmount
     default_texture: UnitAmount
     texture_ink: RgbColor
     texture_seed: int
+    vignette_edge: RgbColor
+    default_vignette: UnitAmount
 
 
 PRESETS: dict[str, PaperPreset] = {
     "cream": PaperPreset(
         name="cream",
         paper=RgbColor(0.98, 0.91, 0.72),
-        base_opacity=UnitAmount(0.42),
         default_texture=UnitAmount(0.03),
         texture_ink=RgbColor(0.62, 0.49, 0.31),
         texture_seed=1103,
+        vignette_edge=RgbColor(0.78, 0.62, 0.40),
+        default_vignette=UnitAmount(1.0),
     ),
     "parchment": PaperPreset(
         name="parchment",
-        paper=RgbColor(0.95, 0.80, 0.53),
-        base_opacity=UnitAmount(0.48),
+        paper=RgbColor(0.980392, 0.929412, 0.858824),
         default_texture=UnitAmount(0.08),
         texture_ink=RgbColor(0.50, 0.34, 0.19),
         texture_seed=2207,
+        vignette_edge=RgbColor(1.0, 0.901961, 0.764706),
+        default_vignette=UnitAmount(1.0),
     ),
     "sepia": PaperPreset(
         name="sepia",
         paper=RgbColor(0.88, 0.68, 0.40),
-        base_opacity=UnitAmount(0.38),
         default_texture=UnitAmount(0.12),
         texture_ink=RgbColor(0.40, 0.25, 0.13),
         texture_seed=3313,
+        vignette_edge=RgbColor(0.62, 0.40, 0.20),
+        default_vignette=UnitAmount(1.0),
     ),
 }
 

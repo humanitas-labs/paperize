@@ -20,6 +20,11 @@ def source_pdf(tmp_path: Path) -> Path:
     first = document.new_page(width=612, height=792)
     first.insert_text((72, 96), "Paperize keeps this text selectable.", fontsize=18)
     first.draw_line((72, 116), (430, 116), color=(0.1, 0.1, 0.1), width=1)
+    first.draw_rect(
+        pymupdf.Rect(280, 200, 330, 250),
+        color=(0.0, 0.0, 0.0),
+        fill=(0.0, 0.0, 0.0),
+    )
     first.insert_link(
         {
             "kind": pymupdf.LINK_URI,

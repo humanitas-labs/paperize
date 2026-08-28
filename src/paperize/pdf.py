@@ -12,7 +12,7 @@ import pikepdf
 from paperize import __version__
 from paperize.errors import InputPdfError, VerificationError
 from paperize.inspect import PAPERIZE_INFO_KEY, inspect_safety, snapshot_structure
-from paperize.overlay import apply_overlay
+from paperize.overlay import OverlayStyle, apply_overlay
 from paperize.presets import get_preset
 
 if TYPE_CHECKING:
@@ -24,6 +24,12 @@ def paperize(request: TransformRequest) -> Path:
     request.validate_paths()
     preset = get_preset(request.preset_name)
     texture = request.texture or preset.default_texture
+    style = OverlayStyle(
+        preset=preset,
+        strength=request.strength,
+        texture=texture,
+        vignette=request.vignette or preset.default_vignette,
+    )
     temporary = _temporary_output(request.output)
 
     try:
@@ -35,9 +41,7 @@ def paperize(request: TransformRequest) -> Path:
                     pdf,
                     page,
                     page_index=page_index,
-                    preset=preset,
-                    strength=request.strength,
-                    texture=texture,
+                    style=style,
                 )
             pdf.docinfo[PAPERIZE_INFO_KEY] = f"paperize-pdf {__version__}"
             pdf.save(temporary)

@@ -44,6 +44,12 @@ from paperize.presets import PRESETS
     default=None,
     help="Override the preset's texture amount.",
 )
+@click.option(
+    "--vignette",
+    type=click.FloatRange(0.0, 1.0),
+    default=None,
+    help="Override the preset's edge-vignette strength.",
+)
 @click.option("--force", is_flag=True, help="Replace an existing output file.")
 def cli(
     source: Path,
@@ -51,6 +57,7 @@ def cli(
     preset: str,
     strength: float,
     texture: float | None,
+    vignette: float | None,
     *,
     force: bool,
 ) -> None:
@@ -61,6 +68,7 @@ def cli(
         preset_name=preset.lower(),
         strength=UnitAmount(strength),
         texture=None if texture is None else UnitAmount(texture),
+        vignette=None if vignette is None else UnitAmount(vignette),
         force=force,
     )
     try:

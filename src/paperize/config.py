@@ -33,6 +33,7 @@ class TransformRequest:
     preset_name: str
     strength: UnitAmount
     texture: UnitAmount | None
+    vignette: UnitAmount | None = None
     force: bool = False
 
     def validate_paths(self) -> None:

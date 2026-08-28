@@ -20,3 +20,4 @@ CLI
 | ID | Decision | Status |
 |---|---|---|
 | [ADR-001](decisions/001-vector-pdf-overlay.md) | Use a vector PDF overlay implemented with pikepdf | Accepted |
+| [ADR-002](decisions/002-paper-character.md) | Add a variable, edge-weighted elliptical vignette | Accepted |

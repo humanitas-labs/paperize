@@ -24,7 +24,7 @@ def test_paperize_preserves_document_structure(source_pdf: Path) -> None:
     assert source_pdf.read_bytes() == source_bytes
     with pikepdf.Pdf.open(output) as written:
         assert snapshot_structure(written) == expected_structure
-        assert str(written.docinfo[PAPERIZE_INFO_KEY]) == "paperize-pdf 0.1.0"
+        assert str(written.docinfo[PAPERIZE_INFO_KEY]) == "paperize-pdf 0.2.0"
 
 
 def test_paperize_preserves_text_links_and_outlines(source_pdf: Path) -> None:
